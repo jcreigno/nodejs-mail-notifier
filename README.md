@@ -5,7 +5,7 @@ mail-notifier
 
 introduction
 ------------
-Extractor scans file line by line. Registred callbacks are notified when a patterm matches current line.
+Send `mail` event for each new email in IMAP INBOX. 
 
 synopsis
 --------
