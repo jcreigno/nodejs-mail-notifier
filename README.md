@@ -59,6 +59,14 @@ Events
 -----
 Sent on incoming new unread email. The parsed Mail is given as first parameter to the event listener.
 
+'error'
+-----
+Sent when an error occurs with the IMAP connection. The first parameter is the `err` object.
+
+'end'
+-----
+Sent when the IMAP connection is closed. This usually happens after a `stop` method call.
+
 Dependencies
 ============
 
