@@ -1,19 +1,27 @@
-var util = require('util'), 
-    ImapConnection = require ('imap').ImapConnection, 
-    MailParser = require('mailparser').MailParser, 
+var util = require('util'),
+    ImapConnection = require ('imap').ImapConnection,
+    MailParser = require('mailparser').MailParser,
     Seq = require('seq'),
     EventEmitter = require('events').EventEmitter;
 
 
 function Notifier(opts) {
     EventEmitter.call(this);
-    this.options = opts;
-    this.imap = new ImapConnection({
+    var self = this;
+    self.options = opts;
+    self.connected = false;
+    self.imap = new ImapConnection({
         username: opts.username,
         password: opts.password,
         host: opts.host,
         port: opts.port,
         secure: opts.secure
+    });
+    self.imap.on('end',function(){
+      self.emit('end');
+    });
+    self.imap.on('error',function(err){
+      self.emit('error', err);
     });
 }
 util.inherits(Notifier, EventEmitter);
@@ -27,8 +35,10 @@ Notifier.prototype.start = function(){
     var self = this;
     Seq()
         .seq(function(){ self.imap.connect(this); })
-        .seq(function(){ self.imap.openBox('INBOX',false,this);})
-        .seq(function(){ 
+        .seq(function(){
+          self.connected = true;
+          self.imap.openBox('INBOX',false,this);
+        }).seq(function(){
             util.log('successfully opened mail box');
             self.imap.on('mail', function(id){ self.scan(); });
             self.scan();
@@ -39,15 +49,22 @@ Notifier.prototype.start = function(){
 Notifier.prototype.scan = function(){
     var self = this;
     Seq()
-        .seq(function(){ 
+        .seq(function(){
             self.imap.search(['UNSEEN'],this);
         })
         .seq(function(seachResults){
-            if(!seachResults || seachResults.length==0){
+            if(!seachResults || seachResults.length === 0){
                 util.log('no new mail in INBOX');
                 return;
             }
-            var fetch = self.imap.fetch(seachResults,{markSeen:true,request:{headers:false,body: "full"}});
+            var fetch = self.imap.fetch(seachResults,
+                {
+                  markSeen:true,
+                  request:{
+                    headers:false,
+                    body: "full"
+                  }
+                });
             fetch.on('message', function(msg) {
                 var mp = new MailParser();
                 mp.on('end',function(mail){
@@ -62,14 +79,15 @@ Notifier.prototype.scan = function(){
             });
             fetch.on('end', function() {
                 util.log('Done fetching all messages!');
-            });  
-        })
-    ;
+            });
+        });
     return this;
 };
 
 Notifier.prototype.stop = function(){
-    this.imap.logout();
-    this.emit('end');
+    if(this.connected){
+      this.imap.logout();
+    }
+    util.log('mail box closed.');
     return this;
 };
