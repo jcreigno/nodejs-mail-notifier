@@ -37,15 +37,20 @@ notifier(config)
 ----------------
 The constructor function creates a new `notifier`. Parameter provide options needed for imap connection.
 `config` :
- * `host` :  imap server host
- * `port` :  imap server port number
- * `username` :  imap user name
- * `password` :  imap password
- * `secure` :  need secure connection to server
+
+* `host` :  imap server host
+* `port` :  imap server port number
+* `username` :  imap user name
+* `password` :  imap password
+* `secure` :  need secure connection to server
 
 .start()
 ------------------------------------
 Start listening for incomming emails.
+
+.stop()
+------------------------------------
+Stop listening and close IMAP connection.
 
 Events
 ======
@@ -54,3 +59,7 @@ Events
 -----
 Sent on incoming new unread email. The parsed Mail is given as first parameter to the event listener.
 
+Dependencies
+============
+
+This module relies heavily on [node-imap](https://github.com/mscdex/node-imap).
