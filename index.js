@@ -18,6 +18,7 @@ function Notifier(opts) {
         secure: opts.secure
     });
     self.imap.on('end',function(){
+      self.connected = false;
       self.emit('end');
     });
     self.imap.on('error',function(err){
