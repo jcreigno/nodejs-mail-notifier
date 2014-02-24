@@ -19,7 +19,7 @@ var imap = {
   password: "yourimappassword",
   host: "imap.host.com",
   port: 993, // imap port
-  secure: true // use secure connection
+  tls: true // use secure connection
 };
 
 notifier(imap).on('mail',function(mail){console.log(mail);}).start();
