@@ -2,7 +2,7 @@
     "name": "mail-notifier",
     "description": "Nodejs library to get notified on new incoming email.",
     "keywords" : ["imap", "mail", "notifier"],
-    "version": "0.1.0",
+    "version": "0.1.1",
     "author": {
         "name" : "jerome creignou",
         "url" : "https://github.com/jcreigno/nodejs-mail-notifier"
