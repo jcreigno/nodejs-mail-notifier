@@ -91,5 +91,8 @@ Notifier.prototype.stop = function(){
     if(this.connected){
       this.imap.logout();
     }
+    if(this.imap._state.conn){ //hacking into node-imap
+        this.imap._state.conn.end();
+    }
     return this;
 };
