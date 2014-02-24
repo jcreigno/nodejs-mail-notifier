@@ -43,6 +43,8 @@ Notifier.prototype.start = function(){
             util.log('successfully opened mail box');
             self.imap.on('mail', function(id){ self.scan(); });
             self.scan();
+        }).catch(function(err){
+            self.emit('error', err);
         });
     return this;
 };
@@ -89,6 +91,5 @@ Notifier.prototype.stop = function(){
     if(this.connected){
       this.imap.logout();
     }
-    util.log('mail box closed.');
     return this;
 };
