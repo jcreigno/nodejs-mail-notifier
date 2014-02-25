@@ -89,6 +89,8 @@ Notifier.prototype.scan = function () {
             fetch.on('end', function () {
                 util.log('Done fetching all messages!');
             });
+        }).catch(function (err) {
+            self.emit('error', err);
         });
     return this;
 };
