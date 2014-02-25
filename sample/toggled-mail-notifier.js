@@ -17,7 +17,8 @@ var imap = {
   password: "password",
   host: "imap.host.com",
   port: 993, // imap port
-  tls: true // use secure connection
+  tls: true,// use secure connection
+  tlsOptions: { rejectUnauthorized: false }
 };
 
 var n  = notifier(imap).on('mail', function(mail){

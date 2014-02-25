@@ -46,16 +46,16 @@ Notifier.prototype.start = function () {
 Notifier.prototype.scan = function () {
     var self = this;
     self.imap.search(self.options.search || ['UNSEEN'], function (err, seachResults) {
+        if (err) {
+            self.emit('error', err);
+        }
         if (!seachResults || seachResults.length === 0) {
             util.log('no new mail in INBOX');
             return;
         }
         var fetch = self.imap.fetch(seachResults, {
             markSeen: self.options.markSeen === null || true,
-            request: {
-                headers: false,
-                body: "full"
-            }
+            bodies: ''
         });
         fetch.on('message', function (msg) {
             var mp = new MailParser();
@@ -73,6 +73,9 @@ Notifier.prototype.scan = function () {
         });
         fetch.once('end', function () {
             util.log('Done fetching all messages!');
+        });
+        fetch.on('error', function () {
+            self.emit('error', err);
         });
     });
     return this;
