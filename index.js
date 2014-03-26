@@ -11,6 +11,9 @@ function Notifier(opts) {
     EventEmitter.call(this);
     var self = this;
     self.options = opts;
+    if (self.options.username) { //backward compat
+        self.options.user = self.options.username;
+    }
     self.connected = false;
     self.imap = new Imap(opts);
     self.imap.on('end', function () {
