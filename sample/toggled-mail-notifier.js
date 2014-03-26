@@ -13,11 +13,12 @@ function toggleState(){
 }
 
 var imap = {
-  username: "jerome.creignou",
+  user: "jerome.creignou",
   password: "password",
   host: "imap.host.com",
   port: 993, // imap port
-  secure: true // use secure connection
+  tls: true,// use secure connection
+  tlsOptions: { rejectUnauthorized: false }
 };
 
 var n  = notifier(imap).on('mail', function(mail){

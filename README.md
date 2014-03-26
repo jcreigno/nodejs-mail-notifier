@@ -15,11 +15,12 @@ Start listening new mails :
 var notifier = require('mail-notifier');
 
 var imap = {
-  username: "yourimapuser",
+  user: "yourimapuser",
   password: "yourimappassword",
   host: "imap.host.com",
   port: 993, // imap port
-  secure: true // use secure connection
+  tls: true,// use secure connection
+  tlsOptions: { rejectUnauthorized: false }
 };
 
 notifier(imap).on('mail',function(mail){console.log(mail);}).start();
@@ -40,9 +41,15 @@ The constructor function creates a new `notifier`. Parameter provide options nee
 
 * `host` :  imap server host
 * `port` :  imap server port number
-* `username` :  imap user name
+* `user` :  imap user name
 * `password` :  imap password
-* `secure` :  need secure connection to server
+* `tls` :  need a tle connection to server
+* `tlsOptions` : see `tls` module options
+* `markSeen`: mark mail as read defaults to true
+* `box` : mail box read from defaults to 'INBOX'
+* `select`: search query defaults to ['UNSEEN']
+
+For backward compatibility `username` is also supported.
 
 .start()
 ------------------------------------
@@ -70,4 +77,5 @@ Sent when the IMAP connection is closed. This usually happens after a `stop` met
 Dependencies
 ============
 
-This module relies heavily on [node-imap](https://github.com/mscdex/node-imap).
+This module relies heavily on [node-imap](https://github.com/mscdex/node-imap). For more advanced usage, please consider
+using it directly.

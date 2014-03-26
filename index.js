@@ -2,9 +2,8 @@
 'use strict';
 
 var util = require('util'),
-    ImapConnection = require('imap').ImapConnection,
+    Imap = require('imap'),
     MailParser = require('mailparser').MailParser,
-    Seq = require('seq'),
     EventEmitter = require('events').EventEmitter;
 
 
@@ -12,14 +11,11 @@ function Notifier(opts) {
     EventEmitter.call(this);
     var self = this;
     self.options = opts;
+    if (self.options.username) { //backward compat
+        self.options.user = self.options.username;
+    }
     self.connected = false;
-    self.imap = new ImapConnection({
-        username: opts.username,
-        password: opts.password,
-        host: opts.host,
-        port: opts.port,
-        secure: opts.secure
-    });
+    self.imap = new Imap(opts);
     self.imap.on('end', function () {
         self.connected = false;
         self.emit('end');
@@ -37,70 +33,60 @@ module.exports = function (opts) {
 
 Notifier.prototype.start = function () {
     var self = this;
-    Seq()
-        .seq(function () {
-            self.imap.connect(this);
-        })
-        .seq(function () {
-            self.connected = true;
-            self.imap.openBox('INBOX', false, this);
-        }).seq(function () {
-            util.log('successfully opened mail box');
-            self.imap.on('mail', function (id) {
-                self.scan();
-            });
+    self.imap.once('ready', function () {
+        self.connected = true;
+        self.imap.openBox(self.options.box || 'INBOX', false, function () {
             self.scan();
-        }).catch(function (err) {
-            self.emit('error', err);
         });
+        self.imap.on('mail', function (id) {
+            self.scan();
+        });
+    });
+    self.imap.connect();
     return this;
 };
 
 Notifier.prototype.scan = function () {
     var self = this;
-    Seq()
-        .seq(function () {
-            self.imap.search(['UNSEEN'], this);
-        })
-        .seq(function (seachResults) {
-            if (!seachResults || seachResults.length === 0) {
-                util.log('no new mail in INBOX');
-                return;
-            }
-            var fetch = self.imap.fetch(seachResults, {
-                markSeen: true,
-                request: {
-                    headers: false,
-                    body: "full"
-                }
+    self.imap.search(self.options.search || ['UNSEEN'], function (err, seachResults) {
+        if (err) {
+            self.emit('error', err);
+        }
+        if (!seachResults || seachResults.length === 0) {
+            util.log('no new mail in INBOX');
+            return;
+        }
+        var fetch = self.imap.fetch(seachResults, {
+            markSeen: self.options.markSeen === null || true,
+            bodies: ''
+        });
+        fetch.on('message', function (msg) {
+            var mp = new MailParser();
+            mp.once('end', function (mail) {
+                self.emit('mail', mail);
             });
-            fetch.on('message', function (msg) {
-                var mp = new MailParser();
-                mp.on('end', function (mail) {
-                    self.emit('mail', mail);
-                });
-                msg.on('data', function (chunk) {
+            msg.on('body', function (stream, info) {
+                stream.on('data', function (chunk) {
                     mp.write(chunk.toString());
                 });
-                msg.on('end', function () {
+                stream.once('end', function () {
                     mp.end();
                 });
             });
-            fetch.on('end', function () {
-                util.log('Done fetching all messages!');
-            });
-        }).catch(function (err) {
+        });
+        fetch.once('end', function () {
+            util.log('Done fetching all messages!');
+        });
+        fetch.on('error', function () {
             self.emit('error', err);
         });
+    });
     return this;
 };
 
 Notifier.prototype.stop = function () {
     if (this.connected) {
-        this.imap.logout();
-    }
-    if (this.imap._state.conn) { //hacking into node-imap
-        this.imap._state.conn.end();
+        this.imap.end();
     }
     return this;
 };
