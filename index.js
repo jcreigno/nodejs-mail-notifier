@@ -67,7 +67,7 @@ Notifier.prototype.scan = function () {
             });
             msg.on('body', function (stream, info) {
                 stream.on('data', function (chunk) {
-                    mp.write(chunk.toString());
+                    mp.write(chunk);
                 });
                 stream.once('end', function () {
                     mp.end();
