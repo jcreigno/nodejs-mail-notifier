@@ -57,7 +57,7 @@ Notifier.prototype.scan = function () {
             return;
         }
         var fetch = self.imap.fetch(seachResults, {
-            markSeen: self.options.markSeen === null || true,
+            markSeen: (typeof self.options.markSeen === 'undefined' ? true : false)
             bodies: ''
         });
         fetch.on('message', function (msg) {
