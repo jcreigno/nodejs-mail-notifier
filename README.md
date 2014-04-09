@@ -47,7 +47,7 @@ The constructor function creates a new `notifier`. Parameter provide options nee
 * `tlsOptions` : see `tls` module options
 * `markSeen`: mark mail as read defaults to true
 * `box` : mail box read from defaults to 'INBOX'
-* `select`: search query defaults to ['UNSEEN']
+* `search`: search query defaults to ['UNSEEN']
 
 For backward compatibility `username` is also supported.
 
