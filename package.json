@@ -6,7 +6,7 @@
     "mail",
     "notifier"
   ],
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": {
     "name": "jerome creignou",
     "url": "https://github.com/jcreigno/nodejs-mail-notifier"
