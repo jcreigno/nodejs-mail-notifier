@@ -37,9 +37,9 @@ Notifier.prototype.start = function () {
         self.connected = true;
         self.imap.openBox(self.options.box || 'INBOX', false, function () {
             self.scan();
-        });
-        self.imap.on('mail', function (id) {
-            self.scan();
+            self.imap.on('mail', function (id) {
+                self.scan();
+            });
         });
     });
     self.imap.connect();
@@ -65,13 +65,8 @@ Notifier.prototype.scan = function () {
             mp.once('end', function (mail) {
                 self.emit('mail', mail);
             });
-            msg.on('body', function (stream, info) {
-                stream.on('data', function (chunk) {
-                    mp.write(chunk);
-                });
-                stream.once('end', function () {
-                    mp.end();
-                });
+            msg.once('body', function (stream, info) {
+                stream.pipe(mp);
             });
         });
         fetch.once('end', function () {
