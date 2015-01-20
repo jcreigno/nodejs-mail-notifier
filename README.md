@@ -48,6 +48,7 @@ The constructor function creates a new `notifier`. Parameter provide options nee
 * `markSeen`: mark mail as read defaults to true
 * `box` : mail box read from defaults to 'INBOX'
 * `search`: search query defaults to ['UNSEEN']
+* `hideLogs`: hides all logging, defaults to false
 
 For backward compatibility `username` is also supported.
 
