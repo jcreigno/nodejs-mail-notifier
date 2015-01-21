@@ -14,6 +14,7 @@ function Notifier(opts) {
     if (self.options.username) { //backward compat
         self.options.user = self.options.username;
     }
+    self.hideLogs = (self.options.hideLogs) ? true : false;
     self.connected = false;
     self.imap = new Imap(opts);
     self.imap.on('end', function () {
@@ -53,7 +54,9 @@ Notifier.prototype.scan = function () {
             self.emit('error', err);
         }
         if (!seachResults || seachResults.length === 0) {
-            util.log('no new mail in INBOX');
+            if(!self.options.hideLogs) {
+                util.log('no new mail in INBOX');
+            }
             return;
         }
         var fetch = self.imap.fetch(seachResults, {
@@ -70,7 +73,9 @@ Notifier.prototype.scan = function () {
             });
         });
         fetch.once('end', function () {
-            util.log('Done fetching all messages!');
+            if(!self.options.hideLogs) {
+                util.log('Done fetching all messages!');
+            }
         });
         fetch.on('error', function () {
             self.emit('error', err);
