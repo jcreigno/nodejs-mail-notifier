@@ -36,7 +36,8 @@ Notifier.prototype.start = function () {
     var self = this;
     self.imap.once('ready', function () {
         self.connected = true;
-        self.imap.openBox(self.options.box || 'INBOX', false, function () {
+        self.options.box = self.options.box || 'INBOX'
+        self.imap.openBox(self.options.box, false, function () {
             self.scan();
             self.imap.on('mail', function (id) {
                 self.scan();
@@ -55,7 +56,7 @@ Notifier.prototype.scan = function () {
         }
         if (!seachResults || seachResults.length === 0) {
             if(!self.options.hideLogs) {
-                util.log('no new mail in INBOX');
+                util.log('no new mail in ' + self.options.box);
             }
             return;
         }
