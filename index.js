@@ -14,6 +14,7 @@ function Notifier(opts) {
     if (self.options.username) { //backward compat
         self.options.user = self.options.username;
     }
+    self.options.box = self.options.box || 'INBOX';
     self.hideLogs = (self.options.hideLogs) ? true : false;
     self.connected = false;
     self.imap = new Imap(opts);
@@ -36,7 +37,6 @@ Notifier.prototype.start = function () {
     var self = this;
     self.imap.once('ready', function () {
         self.connected = true;
-        self.options.box = self.options.box || 'INBOX'
         self.imap.openBox(self.options.box, false, function () {
             self.scan();
             self.imap.on('mail', function (id) {
