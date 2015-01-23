@@ -15,7 +15,7 @@ function Notifier(opts) {
         self.options.user = self.options.username;
     }
     self.options.box = self.options.box || 'INBOX';
-    self.hideLogs = (self.options.hideLogs) ? true : false;
+    self.hideLogs = !!self.options.hideLogs;
     self.connected = false;
     self.imap = new Imap(opts);
     self.imap.on('end', function () {
