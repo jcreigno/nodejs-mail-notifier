@@ -83,7 +83,6 @@ Notifier.prototype.scan = function () {
 };
 
 Notifier.prototype.stop = function () {
-    console.log('state', this.imap.state);
     if (this.imap.state !== 'disconnected') {
         this.imap.end();
     }
