@@ -27,14 +27,18 @@ module.exports = function (opts) {
 Notifier.prototype.start = function () {
     var self = this;
     self.imap = new Imap(self.options);
-    self.imap.on('end', function () {
+    self.imap.once('end', function () {
         self.emit('end');
     });
-    self.imap.on('error', function (err) {
+    self.imap.once('error', function (err) {
         self.emit('error', err);
     });
     self.imap.once('ready', function () {
-        self.imap.openBox(self.options.box, false, function () {
+        self.imap.openBox(self.options.box, false, function (err, box) {
+            if (err) {
+                self.emit('error', err);
+                return;
+            }
             self.scan();
             self.imap.on('mail', function (id) {
                 self.scan();
@@ -50,6 +54,7 @@ Notifier.prototype.scan = function () {
     self.imap.search(self.options.search || ['UNSEEN'], function (err, seachResults) {
         if (err) {
             self.emit('error', err);
+            return;
         }
         if (!seachResults || seachResults.length === 0) {
             if (!self.options.hideLogs) {
@@ -75,7 +80,7 @@ Notifier.prototype.scan = function () {
                 util.log('Done fetching all messages!');
             }
         });
-        fetch.on('error', function () {
+        fetch.once('error', function () {
             self.emit('error', err);
         });
     });
