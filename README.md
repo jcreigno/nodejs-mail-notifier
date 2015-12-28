@@ -48,7 +48,6 @@ The constructor function creates a new `notifier`. Parameter provide options nee
 * `markSeen`: mark mail as read defaults to true
 * `box` : mail box read from defaults to 'INBOX'
 * `search`: search query defaults to ['UNSEEN']
-* `hideLogs`: hides all logging, defaults to false
 
 For backward compatibility `username` is also supported.
 
@@ -80,3 +79,22 @@ Dependencies
 
 This module relies heavily on [node-imap](https://github.com/mscdex/node-imap). For more advanced usage, please consider
 using it directly.
+
+
+Debugging
+=========
+
+Debugging is enabled via the [visionmedia/debug](https://github.com/visionmedia/debug) module.
+
+To enable debug info add `mailnotifier` to the DEBUG env variable :
+
+```sg
+$>DEBUG=mailnotifier node sample/test.js 
+```
+
+Or to also have imap module debug info :
+
+```sg
+$>DEBUG=mailnotifier,imap node sample/test.js 
+```
+
