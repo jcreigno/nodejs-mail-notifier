@@ -89,12 +89,12 @@ Debugging is enabled via the [visionmedia/debug](https://github.com/visionmedia/
 To enable debug info add `mailnotifier` to the DEBUG env variable :
 
 ```sg
-$>DEBUG=mailnotifier node sample/test.js 
+$>DEBUG=mailnotifier node sample/simple-mail-notifier.js
 ```
 
 Or to also have imap module debug info :
 
 ```sg
-$>DEBUG=mailnotifier,imap node sample/test.js 
+$>DEBUG=mailnotifier,imap node sample/simple-mail-notifier.js
 ```
 
