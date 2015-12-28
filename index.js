@@ -47,6 +47,7 @@ Notifier.prototype.start = function () {
     self.imap.once('ready', function () {
         self.imap.openBox(self.options.box, false, function (err, box) {
             if (err) {
+                dbg('unable to open box : %s', err);
                 self.emit('error', err);
                 return;
             }
