@@ -62,6 +62,10 @@ Stop listening and close IMAP connection.
 Events
 ======
 
+'connected'
+-----
+Sent when a connection to the server has been made.
+
 'mail'
 -----
 Sent on incoming new unread email. The parsed Mail is given as first parameter to the event listener.

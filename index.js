@@ -44,6 +44,7 @@ Notifier.prototype.start = function () {
         dbg('new uidvalidity : %s', uidvalidity);
     });
     self.imap.once('ready', function () {
+        self.emit('connected');
         self.imap.openBox(self.options.box, false, function (err, box) {
             if (err) {
                 dbg('unable to open box : %s', err);
