@@ -26,6 +26,17 @@ var imap = {
 notifier(imap).on('mail',function(mail){console.log(mail);}).start();
 ```  
 
+Keep it running forever :
+
+```javascript
+var n = notifier(imap);
+n.on('end', function () { // session closed
+  n.start();
+}).on('mail',function(m){
+  console.log(m.from[0].address, m.subject);
+}).start();
+```
+
 installation
 ------------
 
