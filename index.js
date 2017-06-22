@@ -17,11 +17,12 @@ function Notifier(opts) {
         self.options.user = self.options.username;
     }
     self.options.box = self.options.box || 'INBOX';
-    self.options.debug = debug('imap');
+    self.options.debug = self.options.debug || debug('imap');
 }
 util.inherits(Notifier, EventEmitter);
 
-module.exports = function (opts) {
+module.exports = function (opts, customDbg) {
+    dbg = customDbg || dbg;
     return new Notifier(opts);
 };
 
