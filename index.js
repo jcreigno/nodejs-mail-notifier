@@ -101,9 +101,12 @@ Notifier.prototype.scan = function () {
 };
 
 Notifier.prototype.stop = function () {
+    dbg('imap.state before stopping: %s', this.imap.state);
+
     if (this.imap.state !== 'disconnected') {
         this.imap.end();
     }
+
     dbg('notifier stopped');
     return this;
 };
