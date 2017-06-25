@@ -12,9 +12,9 @@ synopsis
 Start listening new mails :
 
 ```javascript
-var notifier = require('mail-notifier');
+const notifier = require('mail-notifier');
 
-var imap = {
+const imap = {
   user: "yourimapuser",
   password: "yourimappassword",
   host: "imap.host.com",
@@ -23,18 +23,18 @@ var imap = {
   tlsOptions: { rejectUnauthorized: false }
 };
 
-notifier(imap).on('mail',function(mail){console.log(mail);}).start();
+notifier(imap)
+  .on('mail', mail => console.log(mail))
+  .start();
 ```  
 
 Keep it running forever :
 
 ```javascript
-var n = notifier(imap);
-n.on('end', function () { // session closed
-  n.start();
-}).on('mail',function(m){
-  console.log(m.from[0].address, m.subject);
-}).start();
+const n = notifier(imap);
+n.on('end', () => n.start()) // session closed
+  .on('mail', mail => console.log(mail.from[0].address, mail.subject))
+  .start();
 ```
 
 installation
@@ -45,7 +45,7 @@ installation
 API
 ===
 
-notifier(config)
+notifier(config, customDbg)
 ----------------
 The constructor function creates a new `notifier`. Parameter provide options needed for imap connection.
 `config` :
@@ -59,8 +59,20 @@ The constructor function creates a new `notifier`. Parameter provide options nee
 * `markSeen`: mark mail as read defaults to true
 * `box` : mail box read from defaults to 'INBOX'
 * `search`: search query defaults to ['UNSEEN']
+* `debug`: *function* - if set, the function will be called with one argument, a string containing some debug info. Default: debug output if [enabled](#debugging).
+
 
 For backward compatibility `username` is also supported.
+
+`custommDbg`: *function* - if set, the function will be called with args that contain some mail-notifier debug info. Default: debug output if [enabled](#debugging).
+
+example:
+```javascript
+const n = notifier(config, (...args) => {
+  const msg = util.format(...args);
+  customLogFn(msg);
+});
+```
 
 .start()
 ------------------------------------
