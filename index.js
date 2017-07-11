@@ -87,6 +87,22 @@ Notifier.prototype.scan = function () {
             mp.once('end', function (mail) {
                 self.emit('mail', mail);
             });
+            var uid;
+            msg.once('end', function () {
+                if (self.options.markDeleted && uid) {
+                    self.imap.addFlags(uid, ['DELETED'], function (err) {
+                        if (err) { self.emit('error', err); }
+                    });
+                }
+                if (self.options.autoExpunge) {
+                    self.imap.expunge(function (err) {
+                        if (err) { self.emit('error', err); }
+                    });
+                }
+            });
+            msg.once('attributes', function (attrs) {
+                uid = attrs.uid;
+            });
             msg.once('body', function (stream, info) {
                 stream.pipe(mp);
             });
