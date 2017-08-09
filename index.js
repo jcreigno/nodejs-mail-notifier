@@ -103,7 +103,7 @@ Notifier.prototype.scan = function () {
 };
 
 Notifier.prototype.stop = function () {
-    const self = this;
+    var self = this;
     
     self.dbg('imap.state before stopping: %s', this.imap.state);
 
