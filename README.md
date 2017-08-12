@@ -59,10 +59,13 @@ The constructor function creates a new `notifier`. Parameter provide options nee
 * `markSeen`: mark mail as read defaults to true
 * `box` : mail box read from defaults to 'INBOX'
 * `search`: search query defaults to ['UNSEEN']
+* `connTimeout` : Number of milliseconds to wait for a connection to be established. Default: 10000
+* `authTimeout` : Number of milliseconds to wait to be authenticated after a connection has been established. Default: 5000
 * `debug`: *function* - if set, the function will be called with one argument, a string containing some debug info. Default: debug output if [enabled](#debugging).
 
+Options from [node-imap](https://github.com/mscdex/node-imap#connection-instance-methods) are also avaliable.
 
-For backward compatibility `username` is also supported.
+For backward compatibility `username` is supported.
 
 `custommDbg`: *function* - if set, the function will be called with args that contain some mail-notifier debug info. Default: debug output if [enabled](#debugging).
 
