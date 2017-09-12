@@ -34,14 +34,13 @@ Notifier.prototype.start = function () {
     var self = this;
     
 	var q = async.queue(function(task, callback) {
-		console.log('process queue ' + task.name);
-		self.scan();
-		callback();
+		self.dbg('process queue ' + task.name);
+		self.scan(callback);
 	}, 1);	
 
 	// assign a callback
 	q.drain = function() {
-		console.log('all items have been processed');
+		self.dbg('all items have been processed');
 	};
 	
 	self.imap = new Imap(self.options);
@@ -68,14 +67,14 @@ Notifier.prototype.start = function () {
                 return;
             }
             
-			q.push({name: 'foo'}, function(err) {
-				console.log('finished processing foo');
+			q.push({name: 'scan initial'}, function(err) {
+				self.dbg('finished processing scan initial');
 			});
 			
             self.imap.on('mail', function (id) {
                 self.dbg('mail event : %s', id);
-                q.push({name: 'foo'}, function(err) {
-					console.log('finished processing foo');
+                q.push({name: 'scan', id : id}, function(err) {
+					self.dbg('finished processing scan '+id);
 				});
             });
         });
@@ -84,16 +83,18 @@ Notifier.prototype.start = function () {
     return this;
 };
 
-Notifier.prototype.scan = function () {
+Notifier.prototype.scan = function (callback) {
     var self = this, search = self.options.search || ['UNSEEN'];
     self.dbg('scanning %s with filter `%s`.', self.options.box,  search);
     self.imap.search(search, function (err, seachResults) {
         if (err) {
             self.emit('error', err);
-            return;
+            callback();
+			return;
         }
         if (!seachResults || seachResults.length === 0) {
             self.dbg('no new mail in %s', self.options.box);
+            callback();
             return;
         }
         self.dbg('found %d new messages', seachResults.length);
@@ -105,6 +106,7 @@ Notifier.prototype.scan = function () {
             var mp = new MailParser();
             mp.once('end', function (mail) {
                 self.emit('mail', mail);
+				self.dbg('found mail '+mail.headers["message-id"]);
             });
             msg.once('body', function (stream, info) {
                 stream.pipe(mp);
@@ -112,11 +114,13 @@ Notifier.prototype.scan = function () {
         });
         fetch.once('end', function () {
             self.dbg('Done fetching all messages!');
+            callback();
         });
         fetch.once('error', function (err) {
             self.dbg('fetch error : ', err);
             self.emit('error', err);
-        });
+             callback();
+       });
     });
     return this;
 };
