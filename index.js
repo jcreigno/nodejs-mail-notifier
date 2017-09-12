@@ -4,6 +4,7 @@
 var util = require('util'),
     Imap = require('imap'),
     debug = require('debug'),
+    async = require('async'),
     MailParser = require('mailparser').MailParser,
     EventEmitter = require('events').EventEmitter;
 
@@ -31,7 +32,19 @@ module.exports = function (opts, customDbg) {
 
 Notifier.prototype.start = function () {
     var self = this;
-    self.imap = new Imap(self.options);
+    
+	var q = async.queue(function(task, callback) {
+		console.log('process queue ' + task.name);
+		self.scan();
+		callback();
+	}, 1);	
+
+	// assign a callback
+	q.drain = function() {
+		console.log('all items have been processed');
+	};
+	
+	self.imap = new Imap(self.options);
     self.imap.once('end', function () {
         self.dbg('imap end');
         self.emit('end');
@@ -54,10 +67,16 @@ Notifier.prototype.start = function () {
                 self.emit('error', err);
                 return;
             }
-            self.scan();
+            
+			q.push({name: 'foo'}, function(err) {
+				console.log('finished processing foo');
+			});
+			
             self.imap.on('mail', function (id) {
                 self.dbg('mail event : %s', id);
-                self.scan();
+                q.push({name: 'foo'}, function(err) {
+					console.log('finished processing foo');
+				});
             });
         });
     });
