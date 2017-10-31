@@ -83,7 +83,7 @@ Notifier.prototype.scan = function () {
             bodies: ''
         });
         fetch.on('message', function (msg) {
-            let uid, flags;
+            var uid, flags;
             msg.on('attributes', function(attrs) {                                                           
                 uid = attrs.uid;
                 flags = attrs.flags;
