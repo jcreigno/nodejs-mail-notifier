@@ -41,7 +41,7 @@ Notifier.prototype.start = function () {
         self.emit('error', err);
     });
     self.imap.once('close', function (haserr) {
-        self.dbg('imap close : %s', haserr ? 'errored' : 'normal');
+        self.dbg('imap close : %s', haserr ? 'errored ' + haserr : 'normal');
     });
     self.imap.on('uidvalidity', function (uidvalidity) {
         self.dbg('new uidvalidity : %s', uidvalidity);
@@ -122,6 +122,4 @@ Notifier.prototype.stop = function () {
     return this;
 };
 
-Notifier.prototype.dbg = function (...args) {
-    dbg(...args);
-}
+Notifier.prototype.dbg = dbg;
