@@ -83,8 +83,16 @@ Notifier.prototype.scan = function () {
             bodies: ''
         });
         fetch.on('message', function (msg) {
+            var uid, flags;
+            msg.on('attributes', function(attrs) {                                                           
+                uid = attrs.uid;
+                flags = attrs.flags;
+                self.dbg("Message uid", attrs.uid);                                                               
+            }); 
             var mp = new MailParser();
             mp.once('end', function (mail) {
+                mail.uid = uid;
+                mail.flags = flags;
                 self.emit('mail', mail);
             });
             msg.once('body', function (stream, info) {
