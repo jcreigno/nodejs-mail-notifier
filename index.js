@@ -57,7 +57,6 @@ Notifier.prototype.start = function () {
             self.scan();
             self.imap.on('mail', function (id) {
                 self.dbg('mail event : %s', id);
-                self.scan();
             });
         });
     });
@@ -101,6 +100,9 @@ Notifier.prototype.scan = function () {
         });
         fetch.once('end', function () {
             self.dbg('Done fetching all messages!');
+            setTimeout(function () {
+                self.scan();
+            });
         });
         fetch.once('error', function (err) {
             self.dbg('fetch error : ', err);
