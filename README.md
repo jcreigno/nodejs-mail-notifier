@@ -36,6 +36,9 @@ n.on('end', () => n.start()) // session closed
   .on('mail', mail => console.log(mail.from[0].address, mail.subject))
   .start();
 ```
+**Note:** If using a Gmail account, you will need to do two things:
+1. Enable IMAP in your Gmail account settings, which is detailed [here](https://support.google.com/mail/answer/7126229?hl=en).
+2. Authorize "less secure apps", which you is laid out in "Option 2" [here](https://support.google.com/accounts/answer/6010255?hl=en).
 
 installation
 ------------
