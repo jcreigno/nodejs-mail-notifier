@@ -5,7 +5,7 @@ const Imap = require('imap'),
     debug = require('debug'),
     async = require('async'),
     MailParser = require('mailparser').MailParser,
-    EventEmitter = require('events').EventEmitter;
+    EventEmitter = require('events'); // https://nodejs.org/api/events.html
 
 const defaultDebug = debug('mailnotifier');
 
@@ -86,27 +86,27 @@ class Notifier extends EventEmitter {
         };
 
         self.imap = new Imap(self.options);
-        self.imap.once('end', function () {
+        self.imap.once(CONNECTION_EVENT_END, function () {
             self.dbg('imap end');
-            self.emit('end');
+            self.emit(NOTIFIER_EVENT_END);
         });
-        self.imap.once('error', function (err) {
+        self.imap.once(CONNECTION_EVENT_ERROR, function (err) {
             self.dbg('imap error : %s', err);
-            self.emit('error', err);
+            self.emit(NOTIFIER_EVENT_ERROR, err);
         });
-        self.imap.once('close', function (haserr) {
-            self.dbg('imap close : %s', haserr ? 'errored ' + haserr : 'normal');
-            self.emit('end');
+        self.imap.once(CONNECTION_EVENT_CLOSE, function (hasError) {
+            self.dbg('imap close : %s', hasError ? 'errored ' + hasError : 'normal');
+            self.emit(NOTIFIER_EVENT_END);
         });
-        self.imap.on('uidvalidity', function (uidvalidity) {
-            self.dbg('new uidvalidity : %s', uidvalidity);
+        self.imap.on(CONNECTION_EVENT_UIDVALIDITY, function (uidValidity) {
+            self.dbg('new uidvalidity : %s', uidValidity);
         });
-        self.imap.once('ready', function () {
-            self.emit('connected');
+        self.imap.once(CONNECTION_EVENT_READY, function () {
+            self.emit(NOTIFIER_EVENT_CONNECTED);
             self.imap.openBox(self.options.box, false, function (err, box) {
                 if (err) {
                     self.dbg('unable to open box : %s', err);
-                    self.emit('error', err);
+                    self.emit(NOTIFIER_EVENT_ERROR, err);
                     return;
                 }
 
@@ -114,7 +114,7 @@ class Notifier extends EventEmitter {
                     self.dbg('finished processing scan initial');
                 });
 
-                self.imap.on('mail', function (id) {
+                self.imap.on(CONNECTION_EVENT_MAIL, function (id) {
                     self.dbg('mail event : %s', id);
                     q.push({name: 'scan', id : id}, function(err) {
                         self.dbg('finished processing scan '+id);
@@ -129,19 +129,19 @@ class Notifier extends EventEmitter {
     scan(callback) {
         const self = this, search = self.options.search || ['UNSEEN'];
         self.dbg('scanning %s with filter `%s`.', self.options.box,  search);
-        self.imap.search(search, function (err, seachResults) {
+        self.imap.search(search, function (err, searchResults) {
             if (err) {
-                self.emit('error', err);
+                self.emit(NOTIFIER_EVENT_ERROR, err);
                 callback();
                 return;
             }
-            if (!seachResults || seachResults.length === 0) {
+            if (!searchResults || searchResults.length === 0) {
                 self.dbg('no new mail in %s', self.options.box);
                 callback();
                 return;
             }
-            self.dbg('found %d new messages', seachResults.length);
-            const fetch = self.imap.fetch(seachResults, {
+            self.dbg('found %d new messages', searchResults.length);
+            const fetch = self.imap.fetch(searchResults, {
                 markSeen: self.options.markSeen !== false,
                 bodies: ''
             });
@@ -156,7 +156,7 @@ class Notifier extends EventEmitter {
                 mp.once('end', function (mail) {
                     mail.uid = uid;
                     mail.flags = flags;
-                    self.emit('mail', mail);
+                    self.emit(NOTIFIER_EVENT_MAIL, mail);
                     self.dbg('found mail '+mail.headers["message-id"]);
                 });
                 msg.once('body', function (stream, info) {
@@ -169,7 +169,7 @@ class Notifier extends EventEmitter {
             });
             fetch.once('error', function (err) {
                 self.dbg('fetch error : ', err);
-                self.emit('error', err);
+                self.emit(NOTIFIER_EVENT_ERROR, err);
                 callback();
             });
         });
