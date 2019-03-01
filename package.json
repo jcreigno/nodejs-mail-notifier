@@ -6,7 +6,7 @@
     "mail",
     "notifier"
   ],
-  "version": "0.4.1",
+  "version": "0.5.0",
   "author": {
     "name": "jerome creignou",
     "url": "https://github.com/jcreigno/nodejs-mail-notifier"
@@ -16,9 +16,9 @@
     "url": "git://github.com/jcreigno/nodejs-mail-notifier.git"
   },
   "dependencies": {
-    "async": "^2.5.0",
-    "debug": "^2.2.0",
-    "imap": "~0.8.9",
+    "async": "^2.6.2",
+    "debug": "^4.1.1",
+    "imap": "~0.8.19",
     "mailparser": "0.6.2"
   },
   "main": "./index.js",

@@ -4,7 +4,10 @@
 const Imap = require('imap'),
     debug = require('debug'),
     async = require('async'),
-    MailParser = require('mailparser').MailParser,
+    MailParser = require('mailparser').MailParser, // version 0.6.2 is depreciated
+    // I asked about docs of migration there: https://github.com/nodemailer/mailparser/issues/209
+    // all versions https://www.npmjs.com/package/mailparser?activeTab=versions
+    // you can see that it can be updated to 2.4.3
     EventEmitter = require('events'); // https://nodejs.org/api/events.html
 
 const defaultDebug = debug('mailnotifier');
@@ -182,15 +185,16 @@ class Notifier extends EventEmitter {
                     flags = attrs.flags;
                     self.dbg("Message uid", attrs.uid);
                 });
+                msg.once(MESSAGE_EVENT_BODY, function (stream, info) {
+                    stream.pipe(mp);
+                });
+
                 const mp = new MailParser();
                 mp.once(MESSAGE_EVENT_END, function (mail) { // this is technically event of mail parser, not message
                     mail.uid = uid;
                     mail.flags = flags;
                     self.emit(NOTIFIER_EVENT_MAIL, mail);
                     self.dbg('found mail '+mail.headers["message-id"]);
-                });
-                msg.once(MESSAGE_EVENT_BODY, function (stream, info) {
-                    stream.pipe(mp);
                 });
             });
             fetch.once(FETCH_EVENT_END, function () {
