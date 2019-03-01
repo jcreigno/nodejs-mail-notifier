@@ -1,6 +1,6 @@
-var notifier = require('../index.js');
+const notifier = require('../index.js');
 
-var started = true;
+let started = true;
 
 function toggleState(){
   if(started){
@@ -12,7 +12,7 @@ function toggleState(){
   setTimeout(toggleState,3000);
 }
 
-var imap = {
+const imap = {
   user: "jerome.creignou",
   password: "password",
   host: "imap.host.com",
@@ -21,7 +21,7 @@ var imap = {
   tlsOptions: { rejectUnauthorized: false }
 };
 
-var n  = notifier(imap).on('mail', function(mail){
+const n  = notifier(imap).on('mail', function(mail){
   console.log(mail);
 });
 
