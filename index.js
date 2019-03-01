@@ -9,6 +9,50 @@ const Imap = require('imap'),
 
 const defaultDebug = debug('mailnotifier');
 
+/**
+ * connection events from imap package, these strings should be used on imap listening
+ *
+ * source:
+ * https://www.npmjs.com/package/imap
+ */
+const CONNECTION_EVENT_READY = 'ready';
+// () - Emitted when a connection to the server has been made and authentication was successful.
+const CONNECTION_EVENT_ALERT= 'alert';
+// (< string >message) - Emitted when the server issues an alert (e.g. "the server is going down for maintenance").
+const CONNECTION_EVENT_MAIL = 'mail';
+// (< integer >numNewMsgs) - Emitted when new mail arrives in the currently open mailbox.
+const CONNECTION_EVENT_EXPUNGE = 'expunge';
+// (< integer >seqno) - Emitted when a message was expunged externally. seqno is the sequence number (instead of the
+// unique UID) of the message that was expunged. If you are caching sequence numbers, all sequence numbers higher than
+// this value MUST be decremented by 1 in order to stay synchronized with the server and to keep correct continuity.
+const CONNECTION_EVENT_UIDVALIDITY = 'uidvalidity';
+// (< integer >uidvalidity) - Emitted if the UID validity value for the currently open mailbox changes during the
+// current session.
+const CONNECTION_EVENT_UPDATE = 'update';
+// (< integer >seqno, < object >info) - Emitted when message metadata (e.g. flags) changes externally.
+const CONNECTION_EVENT_ERROR = 'error';
+// (< Error >err) - Emitted when an error occurs. The 'source' property will be set to indicate where the error
+// originated from.
+const CONNECTION_EVENT_CLOSE = 'close';
+// (< boolean >hadError) - Emitted when the connection has completely closed.
+const CONNECTION_EVENT_END = 'end';
+// () - Emitted when the connection has ended.
+
+/**
+ * this package events
+ *
+ * source:
+ * README.md
+ */
+const NOTIFIER_EVENT_CONNECTED = 'connected';
+// Sent when a connection to the server has been made.
+const NOTIFIER_EVENT_MAIL = 'mail';
+// (< object > mail) - Sent on incoming new unread email. The parsed Mail is given as first parameter to the event listener.
+const NOTIFIER_EVENT_ERROR = 'error';
+// (< object >  err) - Sent when an error occurs with the IMAP connection. The first parameter is the err object.
+const NOTIFIER_EVENT_END = 'end';
+// Sent when the IMAP connection is closed. This usually happens after a stop method call.
+
 class Notifier extends EventEmitter {
 
     constructor(opts, dbg) {
@@ -16,7 +60,7 @@ class Notifier extends EventEmitter {
         const self = this;
         self.dbg = defaultDebug;
         self.options = opts;
-        if (self.options.username) { //backward compat
+        if (self.options.username) { //backward compatibility
             self.options.user = self.options.username;
         }
         self.options.box = self.options.box || 'INBOX';
@@ -30,12 +74,13 @@ class Notifier extends EventEmitter {
     start() {
         const self = this;
 
-        const q = async.queue(function(task, callback) {
+        // q - queue object - https://caolan.github.io/async/docs.html#QueueObject
+        const q = async.queue(function(task, callback) { // docs: https://caolan.github.io/async/docs.html#queue
             self.dbg('process queue ' + task.name);
             self.scan(callback);
-        }, 1);
+        });
 
-        // assign a callback
+        // a callback that is called when the last item from the queue has returned from the worker
         q.drain = function() {
             self.dbg('all items have been processed');
         };
