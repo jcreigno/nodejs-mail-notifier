@@ -1,6 +1,6 @@
-var notifier = require('../index.js');
+const notifier = require('../index.js');
 
-var imap = {
+const imap = {
   user: "jerome.creignou",
   password: "password",
   host: "imap.host.com",

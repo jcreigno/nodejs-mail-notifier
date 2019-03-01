@@ -1,18 +1,18 @@
-/*jslint node: true, vars: true, indent: 4 */
+/*jslint node: true, consts: true, indent: 4 */
 'use strict';
 
-var util = require('util'),
+const util = require('util'),
     Imap = require('imap'),
     debug = require('debug'),
     async = require('async'),
     MailParser = require('mailparser').MailParser,
     EventEmitter = require('events').EventEmitter;
 
-var dbg = debug('mailnotifier');
+const dbg = debug('mailnotifier');
 
 function Notifier(opts, dbg) {
     EventEmitter.call(this);
-    var self = this;
+    const self = this;
     self.options = opts;
     if (self.options.username) { //backward compat
         self.options.user = self.options.username;
@@ -31,9 +31,9 @@ module.exports = function (opts, customDbg) {
 };
 
 Notifier.prototype.start = function () {
-    var self = this;
+    const self = this;
     
-	var q = async.queue(function(task, callback) {
+	const q = async.queue(function(task, callback) {
 		self.dbg('process queue ' + task.name);
 		self.scan(callback);
 	}, 1);	
@@ -85,7 +85,7 @@ Notifier.prototype.start = function () {
 };
 
 Notifier.prototype.scan = function (callback) {
-    var self = this, search = self.options.search || ['UNSEEN'];
+    const self = this, search = self.options.search || ['UNSEEN'];
     self.dbg('scanning %s with filter `%s`.', self.options.box,  search);
     self.imap.search(search, function (err, seachResults) {
         if (err) {
@@ -99,18 +99,18 @@ Notifier.prototype.scan = function (callback) {
             return;
         }
         self.dbg('found %d new messages', seachResults.length);
-        var fetch = self.imap.fetch(seachResults, {
+        const fetch = self.imap.fetch(seachResults, {
             markSeen: self.options.markSeen !== false,
             bodies: ''
         });
         fetch.on('message', function (msg) {
-            var uid, flags;
+            let uid, flags;
             msg.on('attributes', function(attrs) {                                                           
                 uid = attrs.uid;
                 flags = attrs.flags;
                 self.dbg("Message uid", attrs.uid);                                                               
             }); 
-            var mp = new MailParser();
+            const mp = new MailParser();
             mp.once('end', function (mail) {
                 mail.uid = uid;
                 mail.flags = flags;
@@ -135,7 +135,7 @@ Notifier.prototype.scan = function (callback) {
 };
 
 Notifier.prototype.stop = function () {
-    var self = this;
+    const self = this;
     self.dbg('imap.state before stopping: %s', this.imap.state);
 
     if (this.imap.state !== 'disconnected') {
