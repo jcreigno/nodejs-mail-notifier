@@ -84,6 +84,20 @@ Notifier.prototype.start = function () {
     return this;
 };
 
+/**
+ * Get state of IMAP connection
+ *
+ * @author Tomas Palider
+ * @returns {String} 'disconnected', 'connected', 'authenticated'
+ */
+Notifier.prototype.status = function () {
+    try {
+        return this.imap.state;
+    } catch (e) {
+        return 'disconnected';
+    }
+};
+
 Notifier.prototype.scan = function (callback) {
     var self = this, search = self.options.search || ['UNSEEN'];
     self.dbg('scanning %s with filter `%s`.', self.options.box,  search);
