@@ -105,16 +105,20 @@ Notifier.prototype.scan = function (callback) {
         });
         fetch.on('message', function (msg) {
             var uid, flags;
+            var contents = { attrs:null, body:null }
+            function  signal() {
+                if (!contents.attrs || !contents.body) { return }
+                self.emit('mail', { ...contents.body, ...contents.attrs })
+            }
             msg.on('attributes', function(attrs) {                                                           
-                uid = attrs.uid;
-                flags = attrs.flags;
+                contents.attrs = attrs
+                signal()
                 self.dbg("Message uid", attrs.uid);                                                               
             }); 
             var mp = new MailParser();
             mp.once('end', function (mail) {
-                mail.uid = uid;
-                mail.flags = flags;
-                self.emit('mail', mail);
+                contents.body = mail
+                signal()
 				self.dbg('found mail '+mail.headers["message-id"]);
             });
             msg.once('body', function (stream, info) {
