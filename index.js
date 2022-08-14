@@ -74,6 +74,8 @@ Notifier.prototype.start = function () {
 			
             self.imap.on('mail', function (id) {
                 self.dbg('mail event : %s', id);
+		// I need this event the message one comes after querying the inbox
+		self.emit('mail', id);
                 q.push({name: 'scan', id : id}, function(err) {
 					self.dbg('finished processing scan '+id);
 				});
